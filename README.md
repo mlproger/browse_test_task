@@ -1,6 +1,11 @@
-Для запуска проекта необхоимо добавить .env в проект
-Файл env должен выглядить следующим образом:
-HOST = your_host_for_rabbitmq
-PORT = your_port_for_rabbitmq
-USER =  your_user_for_rabbitmq
-PASSWORD = your_password_for_rabbitmq
+## Запуск проекта
+
+Для запуска проекта необходимо добавить файл `.env`
+
+### Пример `.env`:
+```HOST=localhost
+HOST = Host for rabbitmq
+PORT = Port for rabbitmq
+USER = User for rabbitmq
+PASSWORD = Password for rabbitmq
+```
