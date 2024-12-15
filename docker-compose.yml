@@ -1,0 +1,71 @@
+version: '3.8'
+
+
+networks:
+  app_network:
+    driver: bridge
+
+
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - app_network
+    healthcheck:
+      test: [ "CMD", "rabbitmqctl", "status" ]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 5s
+
+  app:
+    build:
+      dockerfile: ./app/Dockerfile
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    networks:
+      - app_network
+
+
+  consumer:
+    build:
+        dockerfile: ./consumer/Dockerfile
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - app_network
+
+  selenium-hub:
+    image: selenium/hub:4.11.0
+    container_name: selenium-hub
+    ports:
+      - "4444:4444" 
+    environment:
+      - SE_GRID_MAX_SESSION=10
+    networks:
+      - app_network
+
+  chrome-node:
+    image: selenium/node-chrome:4.11.0
+    container_name: chrome-node
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+    ports:
+      - "5900:5900" 
+    volumes:
+      - /dev/shm:/dev/shm 
+    networks:
+      - app_network
